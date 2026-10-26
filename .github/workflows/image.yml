@@ -1,0 +1,42 @@
+# Publica la imagen al subir una etiqueta vX.Y.Z.
+# Umbrel no puede usar imágenes construidas en local: las descarga de un registro.
+name: Imagen IG panel
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Versión
+        id: v
+        run: |
+          app="${GITHUB_REF_NAME#v}"
+          echo "$app" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "Etiqueta no válida: $GITHUB_REF_NAME"; exit 1; }
+          echo "app=$app" >> "$GITHUB_OUTPUT"
+          echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            APP_VERSION=${{ steps.v.outputs.app }}
+          tags: ghcr.io/${{ steps.v.outputs.owner }}/ig-panel:${{ steps.v.outputs.app }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ steps.v.outputs.app }}
+            org.opencontainers.image.description=Panel de la automatización de Instagram de LogiQD
