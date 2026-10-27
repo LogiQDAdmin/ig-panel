@@ -47,6 +47,8 @@ test('lead para HQ: campos que HQ reconoce y sin vacíos', () => {
     zona: 'Sabadell', web: 'no tiene', interes: 'web', telefono: '612 345 678', comment_text: 'WEB 🔥',
   });
   assert.equal(v.nombre, '@panaderia_lola');
+  assert.equal(v.name, '@panaderia_lola'); // el campo «Nombre» de HQ tiene la clave `name`
+  assert.equal(v.phone, '612 345 678');
   assert.equal(v.empresa, 'Panadería Lola');
   assert.equal(v.telefono, '612 345 678');
   assert.match(v.mensaje, /Sabadell/);

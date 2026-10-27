@@ -26,16 +26,23 @@ export const buildHqValues = (lead: LeadForHq): Record<string, string> => {
     perfil ? `Perfil: ${perfil}` : '',
   ].filter(Boolean).join('\n');
 
+  // Los campos que HQ reconoce van con sus dos claves (español e inglés): el formulario de HQ
+  // genera la clave a partir de la etiqueta y, por ejemplo, «Nombre» acaba siendo `name`.
+  // HQ se queda solo con las claves que existen en el formulario.
   const values: Record<string, string> = {
+    name: usuario,
     nombre: usuario,
     telefono: lead.telefono ?? '',
+    phone: lead.telefono ?? '',
     empresa: lead.business_name ?? '',
+    company: lead.business_name ?? '',
     sector: lead.sector ?? '',
     zona: lead.zona ?? '',
     web: lead.web ?? '',
     interes: lead.interes ?? '',
     instagram: perfil,
     mensaje,
+    message: mensaje,
   };
   // HQ trata los vacíos como "sin valor", pero se quitan para no tropezar con campos tipados.
   return Object.fromEntries(Object.entries(values).filter(([, v]) => v !== ''));
